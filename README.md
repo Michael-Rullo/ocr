@@ -1,4 +1,4 @@
 # Jigsaw OCR
-**Michael Rullo (if anyone sees this — including myself)**
+**Done by: Michael Rullo** *(if anyone sees this — including myself)*
 
-### My Experience:
+### My Experience Thus Far:
