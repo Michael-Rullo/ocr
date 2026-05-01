@@ -44,8 +44,9 @@ def main():
             print(f"optimal threshold found: {threshold}")
             # binarize the image using the optimal threshold
             binary_image = otsu_binarize(grayscale_image, threshold)
-            img = Image.fromarray(binary_image)
-            img.show()
+            # displays the binarized image for testing
+            # img = Image.fromarray(binary_image)
+            # img.show()
             print("binarization complete.")
 
 
