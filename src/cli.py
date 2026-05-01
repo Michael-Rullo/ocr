@@ -2,6 +2,9 @@ import sys
 from unittest import case
 import os
 from image_io import load_image
+from otsus import otsu_threshold
+from otsus import otsu_binarize
+from PIL import Image
 
 def main():
     
@@ -34,6 +37,18 @@ def main():
             else:
                 print("failed to load image.")
                 check = 0
+                continue
+
+            # apply Otsu's method to find optimal threshold
+            threshold = otsu_threshold(grayscale_image)
+            print(f"optimal threshold found: {threshold}")
+            # binarize the image using the optimal threshold
+            binary_image = otsu_binarize(grayscale_image, threshold)
+            img = Image.fromarray(binary_image)
+            img.show()
+            print("binarization complete.")
+
+
         elif command.lower() == "ocr":
             if check == 1:
                 print("performing OCR on the loaded image...")
