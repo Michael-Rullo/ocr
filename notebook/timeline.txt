@@ -1,0 +1,134 @@
+Opus' expected timeline:
+
+The complete plan, with everything we've decided baked in.
+
+## Phase 0 — Setup (done)
+
+- Repo skeleton at `C:\ComputerScience\cs projects\ocr\`
+- `.venv` with Python 3.11, CUDA-enabled PyTorch on RTX 4070
+- `requirements.txt`, `.gitignore`, src layout
+- Cursor pointing at the right interpreter
+
+## Phase 1 — Image I/O
+
+**Goal**: load any common image format and produce a clean 2D NumPy grayscale array.
+
+- Use Pillow (`PIL.Image`) to open PNG/JPG/BMP.
+- Convert to grayscale, return `np.uint8` array shape `(H, W)`.
+- CLI command that takes a file path and prints array shape + saves a normalized preview.
+
+**Deliverable**: `python -m ocr.cli load image.jpg` works.
+
+## Phase 2 — Binarization (Otsu's method)
+
+**Research first**: Wikipedia article on Otsu's method. Understand what "between-class variance" means and why maximizing it picks the optimal threshold.
+
+**Build**: implement Otsu's threshold selection in NumPy (no `cv2`). Output is a boolean/uint8 image where text is one value and background another.
+
+**Deliverable**: take a photo of a printed page, run binarization, save the result. Eyeball test — text should be cleanly separated from background.
+
+## Phase 3 — Deskew
+
+**Research**: horizontal projection profiles. The idea: a binarized text image, when summed along rows, has high-variance peaks at line locations *only when properly aligned*. Rotate by candidate angles, pick the angle that maximizes the variance of the row sums.
+
+**Build**: rotation utility (bilinear interpolation) + projection-profile angle finder.
+
+**Deliverable**: feed a deliberately tilted page scan, output a straightened version.
+
+## Phase 4 — Line segmentation
+
+**Research**: same horizontal projection profile. Local minima in the row-sum signal mark inter-line gaps.
+
+**Build**: function that takes a binarized, deskewed image and returns a list of `(y_start, y_end)` row ranges for each text line.
+
+**Deliverable**: visualize line bounding boxes overlaid on the original image. Should look correct on a clean printed page.
+
+## Phase 5 — Character segmentation
+
+**Research**: connected components labeling, two-pass algorithm. Wikipedia is enough.
+
+**Build**: implement two-pass connected components in NumPy. For each detected line, find connected components, return character bounding boxes sorted left-to-right.
+
+**Deliverable**: visualize per-character boxes. Expect failures on touching characters — that's normal, log them and move on.
+
+This is the **hardest phase**. Don't aim for perfection. Aim for "works on clean printed text."
+
+## Phase 6 — Dataset prep
+
+- Use `torchvision.datasets.MNIST` for first training run (10 classes, sanity check).
+- Then `torchvision.datasets.EMNIST` with the **ByClass** split (62 classes: 0–9, A–Z, a–z).
+- Build a custom `Dataset` that wraps EMNIST and applies augmentations (random translation, rotation, slight blur, salt-and-pepper noise) — this is what bridges the gap to your real segmented characters.
+
+**Deliverable**: `DataLoader` you can iterate on, displaying augmented samples to confirm they look reasonable.
+
+## Phase 7 — CNN model
+
+**Research first**: read CS231n notes on convolution, pooling, activations, batch norm, dropout, softmax + cross-entropy. Don't skip this.
+
+**Build**: LeNet-style architecture in PyTorch — roughly:
+- Conv → ReLU → MaxPool → Conv → ReLU → MaxPool → Flatten → FC → ReLU → Dropout → FC → output
+
+Subclass `nn.Module`. You're writing the architecture yourself, not using `torchvision.models`.
+
+**Deliverable**: model that initializes, forward pass produces sensible logits shape.
+
+## Phase 8 — Training loop
+
+- Standard PyTorch loop: forward → loss → backward → optimizer.step.
+- Adam optimizer to start, learning rate ~1e-3.
+- Train on MNIST first; should hit >99% test accuracy in a couple epochs. If not, you have a bug.
+- Then train on EMNIST ByClass; expect ~85–88% test accuracy realistically (62 classes is harder than 10).
+- Log to TensorBoard. Save best checkpoint to `models/`.
+
+**Deliverable**: trained weights file, training curves, confusion matrix on test set.
+
+## Phase 9 — End-to-end inference
+
+Wire it together:
+
+`image → preprocess → deskew → segment lines → segment chars → resize crops to 28×28 → CNN → argmax → assemble string`
+
+Make sure the input format your CNN expects matches what segmentation produces (this is where the train/test mismatch surfaces).
+
+**Deliverable**: `python -m ocr.cli ocr page.jpg` outputs predicted text.
+
+## Phase 10 — Real evaluation
+
+- Scan/photograph 10–20 pages of printed text yourself. Type out the ground truth.
+- Compute **character error rate (CER)** and **word error rate (WER)** on this set.
+- Note where it fails — bad segmentation? bad classification? ambiguous characters (`O` vs `0`, `l` vs `I`)? This list drives v1.5 improvements.
+
+**Deliverable**: a markdown table of CER/WER on your test set, plus failure-case analysis.
+
+## Phase 11 — README and polish
+
+The thing that turns a project into a portfolio piece. Include:
+
+- One-paragraph project pitch
+- Architecture diagram (the pipeline as boxes)
+- Sample input image → predicted output
+- Quantitative results (the table from Phase 10)
+- "How to run" instructions
+- Honest limitations section
+- Future work (CRNN+CTC, handwriting, C++ port)
+
+## Parallel learning track
+
+Read these alongside the build phases — not all at once.
+
+- **Before Phases 2–5**: Wikipedia articles on Otsu, connected components, projection profiles. Maybe one chapter from Gonzalez & Woods *Digital Image Processing* if you want depth.
+- **Before Phases 7–8**: Stanford CS231n notes (modules 1–3). Read Andrej Karpathy's "Yes you should understand backprop" blog post. Watch one PyTorch MNIST tutorial.
+- **For later**: bookmark the CRNN paper, CTC paper, TrOCR — read after you ship v1.
+
+## Realistic time estimate
+
+Working evenings/weekends as a hobby project:
+
+- Phases 1–5: 3–5 weeks (segmentation eats most of this)
+- Phases 6–8: 1–2 weeks (training is fast on the 4070)
+- Phase 9: a week of debugging the integration
+- Phase 10–11: a weekend
+
+Roughly **5–8 weeks** to a polished, honest v1. If you finish faster, you cut corners somewhere.
+
+Start with Phase 1 when you're ready.
