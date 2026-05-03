@@ -4,6 +4,7 @@ import os
 from preprocessing.image_io import load_image
 from preprocessing.otsus import otsu_threshold
 from preprocessing.otsus import otsu_binarize
+from preprocessing.rotation import rotate_image
 from PIL import Image
 
 # approximate angles to rotate by for OCR, based on Fibonacci sequence and common angles
@@ -16,18 +17,28 @@ def main():
 
     while (1):
         if command.lower() == "help":
+
             print("available commands:")
             print("$help - show this message")
             print("$exit - exit the program")
             print("$load <image_file_path> - load an image file")
             print("$ocr - perform OCR on the loaded image")
+
         elif command.lower() == "exit":
             print("exiting...")
             break
+
         elif command.lower() == "load":
-            image_path = input("enter img_name.type: ")
+            # load the image file specified by the user
+            image_path = input("enter img_name.type: ").strip()
+            if not image_path:
+                print("no path entered.")
+                check = 0
+                continue
             if image_path[0] == '"' and image_path[-1] == '"':
                 image_path = image_path[1:-1]
+
+            # load the image as a grayscale image (2D numpy array)
             grayscale_image = load_image(image_path)
             if grayscale_image is not None:
                 print(f"loading image from {image_path}...")
@@ -41,12 +52,21 @@ def main():
             # apply Otsu's method to find optimal threshold
             threshold = otsu_threshold(grayscale_image)
             print(f"optimal threshold found: {threshold}")
+
             # binarize the image using the optimal threshold
             binary_image = otsu_binarize(grayscale_image, threshold)
+            print("binarization complete.")
             # # displays the binarized image for testing
             # img = Image.fromarray(binary_image)
             # img.show()
-            print("binarization complete.")
+
+            # image rotation for deskew
+            for angle in candidate_angles:
+                rotated_image = rotate_image(binary_image, angle)
+                # displays the rotated image for testing
+                img = Image.fromarray(rotated_image)
+                img.show()
+
 
 
         elif command.lower() == "ocr":
@@ -54,6 +74,7 @@ def main():
                 print("performing OCR on the loaded image...")
             else:
                 print("no image loaded.")
+
         else:
             print(f"unknown command: {command}")
 

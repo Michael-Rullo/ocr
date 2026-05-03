@@ -30,4 +30,4 @@ def otsu_binarize(image, threshold):
     binarized = image.copy()
     binarized[image >= threshold] = 255
     binarized[image < threshold] = 0
-    return binarized
+    return np.array(binarized, dtype=np.uint8)
