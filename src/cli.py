@@ -1,10 +1,13 @@
 import sys
 from unittest import case
 import os
-from image_io import load_image
-from otsus import otsu_threshold
-from otsus import otsu_binarize
+from preprocessing.image_io import load_image
+from preprocessing.otsus import otsu_threshold
+from preprocessing.otsus import otsu_binarize
 from PIL import Image
+
+# approximate angles to rotate by for OCR, based on Fibonacci sequence and common angles
+candidate_angles = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 90]
 
 def main():
     
@@ -30,10 +33,6 @@ def main():
                 print(f"loading image from {image_path}...")
                 check = 1
                 # image is now loaded as a 2D numpy array of grayscale pixel values 0-255
-                # for row in grayscale_image:
-                #     for pixel in row:
-                #         print(f"{pixel:3}", end=" ")
-                #     print()
             else:
                 print("failed to load image.")
                 check = 0
@@ -44,7 +43,7 @@ def main():
             print(f"optimal threshold found: {threshold}")
             # binarize the image using the optimal threshold
             binary_image = otsu_binarize(grayscale_image, threshold)
-            # displays the binarized image for testing
+            # # displays the binarized image for testing
             # img = Image.fromarray(binary_image)
             # img.show()
             print("binarization complete.")

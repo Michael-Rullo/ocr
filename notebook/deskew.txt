@@ -1,0 +1,3 @@
+Use linear algebra to rotate the array and create a new array to fill for each point. I would rather do 
+the rotation myself than the Pillow becase it will add black pixels to the border whereas I can have
+full control with my own rotation utility.
