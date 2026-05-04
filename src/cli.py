@@ -4,6 +4,7 @@ import os
 from preprocessing.image_io import load_image
 from preprocessing.otsus import otsu_threshold
 from preprocessing.otsus import otsu_binarize
+from preprocessing.rotation import deskew_image
 from preprocessing.rotation import rotate_image
 from PIL import Image
 
@@ -61,11 +62,10 @@ def main():
             # img.show()
 
             # image rotation for deskew
-            for angle in candidate_angles:
-                rotated_image = rotate_image(binary_image, angle)
-                # displays the rotated image for testing
-                img = Image.fromarray(rotated_image)
-                img.show()
+            image = deskew_image(binary_image, candidate_angles)
+            img = Image.fromarray(image)
+            img.show()
+
 
 
 
