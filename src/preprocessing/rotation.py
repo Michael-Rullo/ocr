@@ -64,28 +64,3 @@ def mult(matrix, vector):
             sum += matrix[i][j] * vector[j][0]
         result[i][0] = sum
     return result
-
-def deskew_image(image, candidate_angles):
-    best_angle = 0
-    best_score = float('inf')
-    for angle in candidate_angles:
-        rotated_image = rotate_image(image, angle)
-        score = variance(rotated_image)
-        if score < best_score:
-            best_score = score
-            best_angle = angle
-    return np.array(rotate_image(image, best_angle), dtype=np.uint8)
-
-def variance(image):
-    rows = [0] * len(image)
-    for i in range(len(image)):
-        for j in range(len(image[0])):
-            # 1 for white, 0 for black so no overflow issues
-            rows[i] += int(image[i][j] if image[i][j] < 128 else 1)
-    mean_row_val = 0
-    for i in rows:
-        mean_row_val += i / len(image)
-    variance = 0
-    for i in rows:
-        variance += (i - mean_row_val) ** 2
-    return variance / len(image)

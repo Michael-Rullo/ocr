@@ -4,8 +4,9 @@ import os
 from preprocessing.image_io import load_image
 from preprocessing.otsus import otsu_threshold
 from preprocessing.otsus import otsu_binarize
-from preprocessing.rotation import deskew_image
-from preprocessing.rotation import rotate_image
+# from preprocessing.rotation import deskew_image
+# from preprocessing.rotation import rotate_image
+import preprocessing.hough as hough
 from PIL import Image
 
 # approximate angles to rotate by for OCR, based on Fibonacci sequence and common angles
@@ -61,10 +62,12 @@ def main():
             # img = Image.fromarray(binary_image)
             # img.show()
 
-            # image rotation for deskew
-            image = deskew_image(binary_image, candidate_angles)
-            img = Image.fromarray(image)
-            img.show()
+            # get edges of image
+            edge_img = hough.edge_detect(binary_image) # edit: im so proud this worked so well really effortlessly
+            # img = Image.fromarray(edge_img)
+            # img.show()
+
+            # perform houghs
 
 
 

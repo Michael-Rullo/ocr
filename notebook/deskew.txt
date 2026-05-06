@@ -1,3 +1,6 @@
 Use linear algebra to rotate the array and create a new array to fill for each point. I would rather do 
 the rotation myself than the Pillow becase it will add black pixels to the border whereas I can have
 full control with my own rotation utility.
+
+wow, as of 5/5 i am really reading a lot of imformation. Ok for the hough transformation (instead of
+line variance since that did not work) i need to find the edges (points where the image color changes)
