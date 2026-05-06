@@ -12,3 +12,6 @@
 
 5/3
     I got the rotation utility down by getting the inverse rotation matrix. had to dust off the cobwebs on some linear algebra. The rotation utility is decent but the line variance calculator isnt getting the result that i would hope for so i will have to fix tmr.
+
+5/5
+    Working on houghs at work, i feel like my head is spinning it is so complex
