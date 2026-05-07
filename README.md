@@ -15,3 +15,6 @@
 
 5/5
     Working on houghs at work, i feel like my head is spinning it is so complex
+
+5/7
+    Segmentation is hell and this is only rotation holy fuh
