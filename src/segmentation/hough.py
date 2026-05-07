@@ -1,83 +1,67 @@
 import numpy as np
 import math
 
+# hardcode the window size to make changes easier
+window = 51
+
 def lines(image):
-    max_votes = 0
     num_rows = len(image)
     num_cols = len(image[0])
     mmin = -1
     mmax = 2
     bmin = -(num_rows + mmax * num_cols)
     bmax = num_rows - mmin * num_cols
-    # i = (m - mmin) / 0.1
-    # j = (c - cmin) / 1
     accum = [[0 for _ in range(int((mmax - mmin) / 0.1))] for _ in range(int((bmax - bmin) / 1))]
     lines = [[255 for _ in range(num_cols)] for _ in range(num_rows)]
-
     for y in range(num_rows):
         for x in range(num_cols):
             if (image[y][x] == 0):
                 k = -1
-                while k < 2:
+                for ki in range(-10, 20, 1):
+                    k = ki / 10
                     b = int(y - k * x)
                     i = int((k - mmin) / 0.1)
                     j = int((b - bmin) / 1)
                     accum[j][i] += 1
-                    k += 0.1
-    for i in image:
-        for j in i:
-            if j == 0:
-                max_votes += 1
-    peak_votes = max(max(row) for row in accum) if accum else 0
-    threshold = max(1, int(0.2 * peak_votes))
-    for i in range(len(accum)):
-        for j in range(len(accum[0])):
+    max_votes = max(max(row) for row in accum)
+    threshold = max(1, int(0.4 * max_votes))
+    accum_rows = len(accum)
+    accum_cols = len(accum[0])
+    output = [[0] * accum_cols for _ in range(accum_rows)]
+    window_size = math.ceil(window / 2)
+    for i in range(accum_rows):
+        for j in range(accum_cols):
             if accum[i][j] >= threshold:
-                weight = accum[i][j]
-                a = i - 1
-                b = i + 1
-                l = j - 1
-                r = j + 1
-                # in the future i should probably use a more robust method to find peaks in the accumulator
-                # for now, we will just check the 8 neighboring cells in the accumulator to see if our current cell is a peak
-                # future me, use a window of size n x n to eliminate blobs
-                if (a >= 0):
-                    if (weight > accum[a][j]):
-                        accum[a][j] = 0
-                    if (r < len(accum[0])):
-                        if (weight > accum[i][r]):
-                            accum[i][r] = 0
-                        if (weight > accum[a][r]):
-                            accum[a][r] = 0
-                    if (l >= 0):
-                        if (weight > accum[i][l]):
-                            accum[i][l] = 0
-                        if (weight > accum[a][l]):
-                            accum[a][l] = 0
-                if (b < len(accum)):
-                    if (weight > accum[b][j]):
-                        accum[b][j] = 0
-                    if (r < len(accum[0])):
-                        if (weight > accum[i][r]):
-                            accum[i][r] = 0
-                        if (weight > accum[b][r]):
-                            accum[b][r] = 0
-                    if (l >= 0):
-                        if (weight > accum[i][l]):
-                            accum[i][l] = 0
-                        if (weight > accum[b][l]):
-                            accum[b][l] = 0
-    for i in range(len(accum)):
-        for j in range(len(accum[0])):
-            if accum[i][j] >= threshold:
+                largest_x = j
+                largest_y = i
+                l = j
+                r = j
+                t = i
+                b = i
+                for p in range(window_size):
+                    l = l - 1 if l > 0 else 0
+                    r = r + 1 if r < accum_cols - 1 else accum_cols - 1
+                    t = t - 1 if t > 0 else 0
+                    b = b + 1 if b < accum_rows - 1 else accum_rows - 1
+                for num in range(b - t + 1):
+                    for num1 in range(r - l + 1):
+                        if accum[t + num][l + num1] > accum[largest_y][largest_x]:
+                            largest_y = t + num
+                            largest_x = l + num1
+                output[largest_y][largest_x] = accum[largest_y][largest_x]
+    for i in range(accum_rows):
+        for j in range(accum_cols):
+            if output[i][j] > 0:
+                print(f"m={mmin + j * 0.1:.2f}, b={bmin + i}, votes={output[i][j]}")
                 b = bmin + i * 1
                 m = mmin + j * 0.1
                 for x in range(num_cols):
                     y = int(m * x + b)
                     if (0 <= y < num_rows):
                         lines[y][x] = 0
+    all_vals = sorted([v for row in accum for v in row], reverse=True)
+    print(all_vals[:10])
     return np.array(lines, dtype=np.uint8)
-
                 
             
 

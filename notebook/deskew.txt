@@ -4,3 +4,40 @@ full control with my own rotation utility.
 
 wow, as of 5/5 i am really reading a lot of imformation. Ok for the hough transformation (instead of
 line variance since that did not work) i need to find the edges (points where the image color changes)
+
+
+                # a = i - 1
+                # b = i + 1
+                # l = j - 1
+                # r = j + 1
+                # # in the future i should probably use a more robust method to find peaks in the accumulator
+                # # for now, we will just check the 8 neighboring cells in the accumulator to see if our current cell is a peak
+                # # future me, use a window of size n x n to eliminate blobs
+                # if (a >= 0):
+                #     if (weight > accum[a][j]):
+                #         accum[a][j] = 0
+                #     if (r < len(accum[0])):
+                #         if (weight > accum[i][r]):
+                #             accum[i][r] = 0
+                #         if (weight > accum[a][r]):
+                #             accum[a][r] = 0
+                #     if (l >= 0):
+                #         if (weight > accum[i][l]):
+                #             accum[i][l] = 0
+                #         if (weight > accum[a][l]):
+                #             accum[a][l] = 0
+                # if (b < len(accum)):
+                #     if (weight > accum[b][j]):
+                #         accum[b][j] = 0
+                #     if (r < len(accum[0])):
+                #         if (weight > accum[i][r]):
+                #             accum[i][r] = 0
+                #         if (weight > accum[b][r]):
+                #             accum[b][r] = 0
+                #     if (l >= 0):
+                #         if (weight > accum[i][l]):
+                #             accum[i][l] = 0
+                #         if (weight > accum[b][l]):
+                #             accum[b][l] = 0
+
+                # ight fuck it we are gonna try the window approach. This is a 3x3 window lets try a 13x13???
