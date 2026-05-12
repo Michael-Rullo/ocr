@@ -18,3 +18,6 @@
 
 5/7
     Segmentation is hell and this is only rotation holy fuh
+
+5/11
+    Segmentation hell, trying to fix houghs and make the code cleaner
