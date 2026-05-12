@@ -63,13 +63,8 @@ def main():
             # img = Image.fromarray(binary_image)
             # img.show()
 
-            # get edges of image
-            edge_img = hough.edge_detect(binary_image) # edit: im so proud this worked so well really effortlessly
-            # img = Image.fromarray(edge_img)
-            # img.show()
-
             # perform houghs
-            lines_img = hough.lines(edge_img)
+            lines_img = hough.run_hough(binary_image)
             img = Image.fromarray(lines_img)
             img.show()
 
