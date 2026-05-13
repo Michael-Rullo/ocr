@@ -86,6 +86,7 @@ def edge_detect(image, num_rows, num_col):
     new = [[255 for _ in range(num_col)] for _ in range(num_rows)]
 
     ## suboptimal when i have a better solution to sliding window in this exact file but whatevs
+    ## it is bothering me whenever i look at it i will fix it (probably soon)
     for i in range(num_rows):
         for j in range(num_col):
             weight = image[i][j]
