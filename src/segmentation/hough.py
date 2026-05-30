@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import statistics
 
 def run_hough(image):
     rows = len(image)
@@ -12,12 +13,20 @@ def run_hough(image):
     b_step = 1
     window_size = math.ceil(26 / 2)
     lamb = 4
+    estimated_max_lines = round(rows / 26) * 1
+    num_lines = estimated_max_lines + 1
 
     edge_image = edge_detect(image, rows, cols)
     accumulator = accumulate(edge_image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols)
-    lines_array = lines(accumulator, mmin, mmax, bmin, bmax, rows, cols, window_size, lamb)
-    return lines_array
-
+    while num_lines > estimated_max_lines:
+        lines_result = lines(accumulator, mmin, mmax, m_step, bmin, bmax, b_step, rows, cols, window_size, lamb)
+        lines_array = lines_result[0]
+        num_lines = lines_result[1]
+        slopes = lines_result[2]
+        lamb += 0.2
+    
+    angle = get_angle(slopes)
+    return (angle, lines_array)
 
 def accumulate(image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols):
     votes_array = [[0 for _ in range(round((mmax - mmin) / m_step))] for _ in range(round((bmax - bmin) / b_step))]
@@ -33,10 +42,12 @@ def accumulate(image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols):
                     votes_array[j][i] += 1 
     return votes_array
 
-def lines(accum, mmin, mmax, bmin, bmax, num_rows, num_cols, window_size, lamb = 4):
+def lines(accum, mmin, mmax,m_step, bmin, bmax, b_step, num_rows, num_cols, window_size, lamb = 4):
     total = 0
+    num_lines = 0
     accum_rows = len(accum)
     accum_cols = len(accum[0])
+    slopes = []
 
     for row in accum:
         for v in row:
@@ -73,20 +84,20 @@ def lines(accum, mmin, mmax, bmin, bmax, num_rows, num_cols, window_size, lamb =
     for i in range(accum_rows):
         for j in range(accum_cols):
             if output[i][j] > threshold:
-                b = bmin + i * 1
-                m = mmin + j * 0.1
+                num_lines += 1
+                b = bmin + i * b_step
+                m = mmin + j * m_step
+                slopes.append(m)
                 for x in range(num_cols):
                     y = round(m * x + b)
                     if (0 <= y < num_rows):
                         lines[y][x] = 0
-    return np.array(lines, dtype=np.uint8)
+    return (np.array(lines, dtype=np.uint8), num_lines, slopes)
 
 
 def edge_detect(image, num_rows, num_col):
     new = [[255 for _ in range(num_col)] for _ in range(num_rows)]
 
-    ## suboptimal when i have a better solution to sliding window in this exact file but whatevs
-    ## it is bothering me whenever i look at it i will fix it (probably soon)
     for i in range(num_rows):
         for j in range(num_col):
             weight = image[i][j]
@@ -107,3 +118,37 @@ def edge_detect(image, num_rows, num_col):
                         break
 
     return np.array(new, dtype=np.uint8)
+
+## very basic, should change in the fiture to use the number of votes to determine rotation angle
+## for now its just based on the lowest (closest to horizontal) slope of the detected lines
+def get_angle(slopes):
+    if not slopes:
+        return 0.0
+
+    line_angles_deg = np.array([math.degrees(math.atan(m)) for m in slopes], dtype=float)
+
+    # Keep only plausible text-skew angles; this rejects many unrelated lines.
+    plausible = line_angles_deg[np.abs(line_angles_deg) <= 30.0]
+    if plausible.size == 0:
+        return 0.0
+
+    # Find dominant orientation cluster (1-degree bins) with a mild bias toward
+    # smaller absolute tilt, then refine with a local median.
+    bin_width = 1.0
+    edges = np.arange(-30.0, 30.0 + bin_width, bin_width)
+    hist, edges = np.histogram(plausible, bins=edges)
+    centers = (edges[:-1] + edges[1:]) / 2.0
+    scores = hist / (1.0 + np.abs(centers) / 10.0)
+    best_idx = int(np.argmax(scores))
+
+    if hist[best_idx] == 0:
+        return 0.0
+
+    local_window = 1.5
+    cluster = plausible[np.abs(plausible - centers[best_idx]) <= local_window]
+    if cluster.size == 0:
+        return 0.0
+
+    baseline_angle_deg = float(np.median(cluster))
+
+    return -baseline_angle_deg
