@@ -51,6 +51,8 @@ def main():
             threshold = otsu_threshold(grayscale_image)
             binary_image = otsu_binarize(grayscale_image, threshold)
             lines_img = run_hough(binary_image)
+            # lines_img = Image.fromarray(lines_img)
+            # lines_img.show()
             
 
         elif command.lower() == "ocr":

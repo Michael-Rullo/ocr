@@ -90,42 +90,20 @@ def edge_detect(image, num_rows, num_col):
     for i in range(num_rows):
         for j in range(num_col):
             weight = image[i][j]
-            a = i - 1
-            b = i + 1
-            l = j - 1
-            r = j + 1
-            if (a >= 0):
-                if (weight != image[a][j]):
-                    new[i][j] = 0
-                    continue
-                if (r < len(image[0])):
-                    if (weight != image[i][r]):
+            t = i
+            b = i
+            l = j
+            r = j
+            window_size = 3
+            for p in range(int(window_size / 2)):
+                t = t - 1 if t - 1 >= 0 else t
+                b = b + 1 if b + 1 < num_rows else b
+                l = l - 1 if l - 1 >= 0 else l
+                r = r + 1 if r + 1 < num_col else r
+            for num in range(b - t + 1):
+                for num1 in range(r - l + 1):
+                    if (weight != image[t + num][l + num1]):
                         new[i][j] = 0
-                        continue
-                    if (weight != image[a][r]):
-                        new[i][j] = 0
-                if (l >= 0):
-                    if (weight != image[i][l]):
-                        new[i][j] = 0
-                        continue
-                    if (weight != image[a][l]):
-                        new[i][j] = 0
-                        continue
-            if (b < len(image)):
-                if (weight != image[a][j]):
-                    new[i][j] = 0
-                    continue
-                if (r < len(image[0])):
-                    if (weight != image[i][r]):
-                        new[i][j] = 0
-                        continue
-                    if (weight != image[a][r]):
-                        new[i][j] = 0
-                if (l >= 0):
-                    if (weight != image[i][l]):
-                        new[i][j] = 0
-                        continue
-                    if (weight != image[a][l]):
-                        new[i][j] = 0
-                        continue
+                        break
+
     return np.array(new, dtype=np.uint8)
