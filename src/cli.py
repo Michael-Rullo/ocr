@@ -9,6 +9,7 @@ from preprocessing.otsus import otsu_threshold
 from preprocessing.otsus import otsu_binarize
 from segmentation.hough import run_hough
 from segmentation.rotation import rotate_image
+from segmentation.hpp import run_hpp
 
 
 def main():

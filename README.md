@@ -21,3 +21,6 @@
 
 5/11
     Segmentation hell, trying to fix houghs and make the code cleaner
+
+5/30
+    Finally getting back to this project. I will have to clean up the houghs code again its looking very messy. The fix was two feedback loops, one for the number of lines and the second that recomputes houghs until no rotation is needed. This solves the issue of an initial bad rotation or two. Now onto line segmentation.

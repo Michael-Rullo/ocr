@@ -36,7 +36,3 @@ def mult(matrix, vector):
             sum += matrix[i][j] * vector[j][0]
         result[i][0] = sum
     return result
-
-def get_angle(image):
-
-    return 0
