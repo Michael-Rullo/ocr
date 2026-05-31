@@ -5,14 +5,14 @@ import statistics
 def run_hough(image):
     rows = len(image)
     cols = len(image[0])
-    mmin = -1
-    mmax = 1
+    mmin = -0.5
+    mmax = 0.5
     m_step = 0.1
     bmin = -(rows + mmax * cols)
     bmax = rows - mmin * cols
     b_step = 1
     window_size = math.ceil(26 / 2)
-    lamb = 4
+    lamb = 3
     estimated_max_lines = round(rows / 26) * 1
     num_lines = estimated_max_lines + 1
 
@@ -119,36 +119,11 @@ def edge_detect(image, num_rows, num_col):
 
     return np.array(new, dtype=np.uint8)
 
-## very basic, should change in the fiture to use the number of votes to determine rotation angle
+## very basic, should change in the future to use the number of votes to determine rotation angle
 ## for now its just based on the lowest (closest to horizontal) slope of the detected lines
 def get_angle(slopes):
-    if not slopes:
-        return 0.0
-
-    line_angles_deg = np.array([math.degrees(math.atan(m)) for m in slopes], dtype=float)
-
-    # Keep only plausible text-skew angles; this rejects many unrelated lines.
-    plausible = line_angles_deg[np.abs(line_angles_deg) <= 30.0]
-    if plausible.size == 0:
-        return 0.0
-
-    # Find dominant orientation cluster (1-degree bins) with a mild bias toward
-    # smaller absolute tilt, then refine with a local median.
-    bin_width = 1.0
-    edges = np.arange(-30.0, 30.0 + bin_width, bin_width)
-    hist, edges = np.histogram(plausible, bins=edges)
-    centers = (edges[:-1] + edges[1:]) / 2.0
-    scores = hist / (1.0 + np.abs(centers) / 10.0)
-    best_idx = int(np.argmax(scores))
-
-    if hist[best_idx] == 0:
-        return 0.0
-
-    local_window = 1.5
-    cluster = plausible[np.abs(plausible - centers[best_idx]) <= local_window]
-    if cluster.size == 0:
-        return 0.0
-
-    baseline_angle_deg = float(np.median(cluster))
-
-    return -baseline_angle_deg
+    if len(slopes) == 0:
+        return 0
+    for num, slope in enumerate(slopes):
+        slopes[num] = math.atan(slope) * 180 / math.pi
+    return -statistics.median(sorted(slopes))

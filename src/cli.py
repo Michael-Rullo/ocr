@@ -50,16 +50,20 @@ def main():
 
             threshold = otsu_threshold(grayscale_image)
             binary_image = otsu_binarize(grayscale_image, threshold)
-            hough_result = run_hough(binary_image)
-            rotation_angle = hough_result[0]
-            lines_array = hough_result[1]
-            ## for troubleshooting the difference between the angle and lines
-            img = Image.fromarray(lines_array)
-            img.show()
-            rotated_image = rotate_image(binary_image, rotation_angle)
-            img = Image.fromarray(rotated_image)
-            img.show()
-            print(f"Estimated rotation angle: {rotation_angle}")
+            rotation_angle = 1
+            while (rotation_angle != 0):
+                hough_result = run_hough(binary_image)
+                rotation_angle = hough_result[0]
+                lines_array = hough_result[1]
+                ## for troubleshooting the difference between the angle and lines
+                # img = Image.fromarray(lines_array)
+                # img.show()
+                rotated_image = rotate_image(binary_image, rotation_angle)
+                # img = Image.fromarray(rotated_image)
+                # img.show()
+                print(f"Estimated rotation angle: {rotation_angle}")
+                binary_image = rotated_image
+            
             
 
         elif command.lower() == "ocr":
