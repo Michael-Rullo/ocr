@@ -2,7 +2,7 @@ import numpy as np
 import math
 import statistics
 
-def run_hough(image):
+def RunHough(image):
     rows = len(image)
     cols = len(image[0])
     mmin = -0.5
@@ -16,19 +16,19 @@ def run_hough(image):
     estimated_max_lines = round(rows / 26) * 1
     num_lines = estimated_max_lines + 1
 
-    edge_image = edge_detect(image, rows, cols)
-    accumulator = accumulate(edge_image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols)
+    edge_image = EdgeDetect(image, rows, cols)
+    accumulator = Accumulate(edge_image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols)
     while num_lines > estimated_max_lines:
-        lines_result = lines(accumulator, mmin, mmax, m_step, bmin, bmax, b_step, rows, cols, window_size, lamb)
+        lines_result = GetLines(accumulator, mmin, mmax, m_step, bmin, bmax, b_step, rows, cols, window_size, lamb)
         lines_array = lines_result[0]
         num_lines = lines_result[1]
         slopes = lines_result[2]
         lamb += 0.2
     
-    angle = get_angle(slopes)
+    angle = GetRecommendedAngle(slopes)
     return (angle, lines_array)
 
-def accumulate(image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols):
+def Accumulate(image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols):
     votes_array = [[0 for _ in range(round((mmax - mmin) / m_step))] for _ in range(round((bmax - bmin) / b_step))]
 
     for y in range(rows):
@@ -42,7 +42,7 @@ def accumulate(image, mmin, mmax, bmin, bmax, m_step, b_step, rows, cols):
                     votes_array[j][i] += 1 
     return votes_array
 
-def lines(accum, mmin, mmax,m_step, bmin, bmax, b_step, num_rows, num_cols, window_size, lamb = 4):
+def GetLines(accum, mmin, mmax,m_step, bmin, bmax, b_step, num_rows, num_cols, window_size, lamb = 4):
     total = 0
     num_lines = 0
     accum_rows = len(accum)
@@ -94,8 +94,7 @@ def lines(accum, mmin, mmax,m_step, bmin, bmax, b_step, num_rows, num_cols, wind
                         lines[y][x] = 0
     return (np.array(lines, dtype=np.uint8), num_lines, slopes)
 
-
-def edge_detect(image, num_rows, num_col):
+def EdgeDetect(image, num_rows, num_col):
     new = [[255 for _ in range(num_col)] for _ in range(num_rows)]
 
     for i in range(num_rows):
@@ -121,7 +120,7 @@ def edge_detect(image, num_rows, num_col):
 
 ## very basic, should change in the future to use the number of votes to determine rotation angle
 ## for now its just based on the lowest (closest to horizontal) slope of the detected lines
-def get_angle(slopes):
+def GetRecommendedAngle(slopes):
     if len(slopes) == 0:
         return 0
     for num, slope in enumerate(slopes):

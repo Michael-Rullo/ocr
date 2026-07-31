@@ -4,7 +4,7 @@ import math
 def radians(degrees):
     return degrees * math.pi / 180
     
-def rotate_image(image, angle):
+def RotateImage(image, angle):
     rad = radians(angle)
     row_length = len(image)
     col_length = len(image[0])
@@ -20,7 +20,7 @@ def rotate_image(image, angle):
             x_prime = j - x_center
             y_prime = i - y_center
             pixel = [[x_prime], [y_prime]]
-            rotated_pixel = mult(inverse_map_matrix, pixel)
+            rotated_pixel = MatrixMult(inverse_map_matrix, pixel)
             x = int(rotated_pixel[0][0]) + int(x_center)
             y = int(rotated_pixel[1][0]) + int(y_center)
             if 0 <= x < col_length and 0 <= y < row_length:
@@ -28,7 +28,7 @@ def rotate_image(image, angle):
 
     return np.array(rotated_image, dtype=np.uint8)
             
-def mult(matrix, vector):
+def MatrixMult(matrix, vector):
     result = [[0], [0]]
     for i in range(len(matrix)):
         sum = 0

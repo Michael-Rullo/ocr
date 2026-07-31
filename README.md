@@ -24,3 +24,6 @@
 
 5/30
     Finally getting back to this project. I will have to clean up the houghs code again its looking very messy. The fix was two feedback loops, one for the number of lines and the second that recomputes houghs until no rotation is needed. This solves the issue of an initial bad rotation or two. Now onto line segmentation.
+
+7/29
+    fookin el'. Its been a while, after being around coding standards at my internship it makes me realize how ass my documentation and naming conventions are. I am gonna work on that mos def. Next i need to apply a gaussian blur or some sort of local smoothing to my vertical and horizontal profile projections so that the entire character might be covered. I dont want to have to have a super generous threshold so a blur might fix that. After that I need to grab each character in order (somehow) and resize it to ex: 28 x 28. Something standardized that I can feed a CNN. Speaking of, I think I am going to create my own CNN from scratch too, seems pretty cool. I really wanna get back into this project and apply what I have learned at my internship so hopefully I can get back on track. For now, peace.
