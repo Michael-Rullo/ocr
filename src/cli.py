@@ -16,7 +16,7 @@ from Segmentation   import ProjectionProfiles
 def SetParserArgs(parser):
     ##
     parser.add_argument(
-        "path",
+        "-path",
         "-p",
         type=str,
         default=None,
@@ -56,14 +56,12 @@ def main():
         houghResult = Hough.RunHough(binarizedImage)
         rotationAngle = houghResult[0]
         houghLines = houghResult[1]
-        rotatedImage = rotatedImage(binarizedImage, rotationAngle)
+        rotatedImage = Rotation.RotateImage(binarizedImage, rotationAngle)
         print(f"Estimated rotation angle: {rotationAngle}")
-    binarizedImage = rotatedImage
+        binarizedImage = rotatedImage
 
     ## Get the projection profiles for 
-    projected_profile = ProjectionProfiles.RunProfiles(binarizedImage)
-    img = Image.fromarray(projected_profile)
-    img.show()
+    boundingCoordinates = ProjectionProfiles.RunProfiles(binarizedImage)
 
 if __name__ == "__main__": # type: ignore
     main() # type: ignore

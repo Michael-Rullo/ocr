@@ -4,7 +4,7 @@ import numpy as np
 def LoadImage(path):
 
     try:
-        image = Image.open(path)
+        image = Image.open(path).convert('RGB')
     except Exception as e:
         print(f"error loading image: {e}")
         return None

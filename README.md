@@ -27,3 +27,9 @@
 
 7/29
     fookin el'. Its been a while, after being around coding standards at my internship it makes me realize how ass my documentation and naming conventions are. I am gonna work on that mos def. Next i need to apply a gaussian blur or some sort of local smoothing to my vertical and horizontal profile projections so that the entire character might be covered. I dont want to have to have a super generous threshold so a blur might fix that. After that I need to grab each character in order (somehow) and resize it to ex: 28 x 28. Something standardized that I can feed a CNN. Speaking of, I think I am going to create my own CNN from scratch too, seems pretty cool. I really wanna get back into this project and apply what I have learned at my internship so hopefully I can get back on track. For now, peace.
+
+7/30
+    Reformatted code, need better commenting and documentation. Working on getting the average space between text lines and then can use 0.4 - 0.5 * that average spacing for the sigma in the Gaussian
+    blur. After that I can get the segments for both hpp and vpp and creating bounding boxes where words or characters might be. That is definitely the next step
+
+    Segments for the blurred profiles is done, now i need bounding boxes and will have to somehow confirm this and test it.
