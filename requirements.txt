@@ -6,13 +6,13 @@ Pillow
 # For CPU-only:  pip install -r requirements.txt
 # For NVIDIA GPU (CUDA 12.8): after the above, run:
 #   pip install --upgrade torch torchvision --index-url https://download.pytorch.org/whl/cu128
-torch
-torchvision
+# torch
+# torchvision
 
 # Visualization & training UX
 matplotlib
 tqdm
-tensorboard
+# tensorboard
 
 # Tooling
 pytest

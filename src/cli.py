@@ -11,6 +11,10 @@ from Preprocessing  import Otsu
 from Segmentation   import Hough
 from Segmentation   import Rotation
 from Segmentation   import ProjectionProfiles
+from Recognition    import Recognize
+from model          import Predict
+
+DEFAULT_MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "models", "characterCnn.npz")
 
 ## Sets the argparser's arguments
 def SetParserArgs(parser):
@@ -21,6 +25,13 @@ def SetParserArgs(parser):
         type=str,
         default=None,
         help="The absolute path to the image"
+    )
+    parser.add_argument(
+        "-model",
+        "-m",
+        type=str,
+        default=DEFAULT_MODEL_PATH,
+        help="Path to the trained CNN weights"
     )
 
 ## Main running logic
@@ -46,6 +57,8 @@ def main():
         print("failed to load image.")
         return 1
 
+    Image.fromarray(greyscaleImage).show()
+
     ## Threshold the image and binarize it
     threshold = Otsu.OtsuThreshold(greyscaleImage)
     binarizedImage = Otsu.OtsuBinarize(greyscaleImage, threshold)
@@ -59,9 +72,21 @@ def main():
         rotatedImage = Rotation.RotateImage(binarizedImage, rotationAngle)
         print(f"Estimated rotation angle: {rotationAngle}")
         binarizedImage = rotatedImage
-
+        ## for show
+        Image.fromarray(houghLines).show()
+        
     ## Get the projection profiles for 
     boundingCoordinates = ProjectionProfiles.RunProfiles(binarizedImage)
+
+    ## Recognize each segmented character with the CNN
+    if not os.path.exists(args.model):
+        print(f"no trained model at {args.model}, run training/Train.py first.")
+        return 1
+
+    predictor = Predict.CharacterPredictor(args.model)
+    text = Recognize.RecognizeText(binarizedImage, boundingCoordinates, predictor)
+    print("recognized text:")
+    print(text)
 
 if __name__ == "__main__": # type: ignore
     main() # type: ignore
